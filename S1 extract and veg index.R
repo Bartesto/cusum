@@ -1,6 +1,8 @@
 
 rm(list = ls(all = T))#Clears workspace if required
 
+
+##Change dir as required
 dir= "Z:\\DOCUMENTATION\\BART\\R\\R_DEV\\cusum"
 zone=51
 shp="cusum.shp"
@@ -15,8 +17,11 @@ option="i35"
 ##STEP 1
 
 
-Landsat_stackR<- function(dir, zone, shp, shp.ID, pr, option){
+#Landsat_stackR<- function(dir, zone, shp, shp.ID, pr, option){
+
         
+        
+##Run this section to set up variables in environment
         setwd(dir)
         ##Libraries required for spatial work
         library(raster)
@@ -37,7 +42,9 @@ Landsat_stackR<- function(dir, zone, shp, shp.ID, pr, option){
         results.a<-as.data.frame(matrix(ncol=length(namesSHP), dimnames=list(NULL, namesSHP)))
         results.b<-as.data.frame(matrix(ncol=length(namesSHP), dimnames=list(NULL, namesSHP)))
         #options<-c("i35", "ndvi", "b1", "b2", "b3", "b4", "b5", "b6")
+
         
+## This section works on extraction and df construction
         for (i in 1:length(date)){
                 #i35
                 dir.i <- dirlistLong[i]
@@ -63,9 +70,9 @@ Landsat_stackR<- function(dir, zone, shp, shp.ID, pr, option){
                 
         }   
         
-                
+#This part will get DF in right shape               
         setwd(dir)
-        library(tidyr)
+        library(tidyr)#remember to detach("package:tidyr", unload=TRUE) as "extract" is masked from raster!!!
         #keep <- rowSums(is.na(results.a)) < 6 #deletes first row of NA's
         results.a <- results.a[-1, ] 
         results.a <-cbind(date, results.a)
@@ -76,7 +83,9 @@ Landsat_stackR<- function(dir, zone, shp, shp.ID, pr, option){
         results.f <- rbind(results.a, results.b)
         results.t <- gather(results.f, "site", "value", 2:11)
         write.csv(file=paste(pr,option,"test.csv", sep="_"), x=results.a)
-}
+
+
+##uneeded from here down
 
 ra <- results.a
 ra$index <- rep("i35", length(ra[,1]))
