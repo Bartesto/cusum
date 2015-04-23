@@ -1,2 +1,10 @@
 # cusum
-Work on: extraction of bands and creation of indices from Landsat image, cloud QA, creation of seasonal model and plotting cusum charts
+
+Includes work on:
+
+1. extraction of bands and creation of indices from Landsat images.
+2. cloud QA.
+3. creation of seasonal models.
+4. plotting cusum charts.
+
+The scripts in this repo require access to Landsat datasets not held here due to their size. These are downloaded, suncorrected Landsat data (L7 or L8) in date folders (format YYYYMMDD).
