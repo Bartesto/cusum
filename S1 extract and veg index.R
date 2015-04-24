@@ -79,7 +79,11 @@ results.b <-cbind(date, results.b)
 write.csv(file=paste(pr,"i35","test.csv", sep="_"), x=results.a)
 write.csv(file=paste(pr,"ndvi","test.csv", sep="_"), x=results.b)
 ##### Finished at this stage - export to csv for cloud QA stage
-#This part will get DF in right shape               
+#This part will get DF in right shape   
+
+
+
+
         setwd(dir)
         library(tidyr)#remember to detach("package:tidyr", unload=TRUE) as "extract" is masked from raster!!!
         #keep <- rowSums(is.na(results.a)) < 6 #deletes first row of NA's
