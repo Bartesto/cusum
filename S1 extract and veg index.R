@@ -4,6 +4,7 @@ rm(list = ls(all = T))#Clears workspace if required
 
 ##Change dir as required
 dir= "Z:\\DOCUMENTATION\\BART\\R\\R_DEV\\cusum"
+dir="/Users/Bart/Documents/cusum"
 zone=51
 shp="cusum.shp"
 shp.ID="Point_ID"
@@ -35,6 +36,7 @@ option="i35"
         namesSHP<-rownames(sitesSHP@data)#Cool. Finds row names from IDvar supplied   
         get.list <- list.files(dir)#Normal file list
         get.list.fixed<-paste(dir,get.list,sep="\\")#Adds path
+        get.list.fixed<-paste(dir,get.list,sep="/")#Adds path Mac
         whichonesaredir <- file.info(get.list.fixed)$isdir#Determines which are folders
         dirlist <- get.list[whichonesaredir]#need this cut for grabbing dates
         dirlistLong <- get.list.fixed[whichonesaredir]#need this cut for sep filepaths
