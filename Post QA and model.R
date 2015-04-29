@@ -19,11 +19,12 @@ rm(list = ls(all = T))#Clears workspace if required
 library(lubridate)
 library(dplyr)
 library(tidyr)
+library(zoo)
 
 
 
 df <- read.csv("test_data_2015_orig.csv", header = TRUE)
-df$date <- as.Date(df$date, '%d/%m/%Y')
+df$date <- dmy(df$date)
 df <- df[order(df$date),]
 
 ##plot to see
@@ -110,3 +111,33 @@ big <- zoo(big)
 testdf <- zoo(testdf)
 all <- merge(big,testdf)
 test2 <- na.locf(merge(testdf,big))
+
+##Get data in regular ts shape (mthly) with data averaged where needed
+all <- seq(ymd('1987-02-09'), ymd('2015-10-01'), by = 'days') #daily date sequence for whole period
+d <- rep('NA', 10462) #dummy column for data frame
+alldates <- data.frame(date = all, val = d)#make df of complete date seq
+
+
+df2 <- left_join(alldates, df, by = "date")#join datasets for whole seq
+df2 <- df2[,-2]#drop dummy column
+
+df3 <- df2 %>%
+        mutate(month = month(date), year = year(date)) %>%
+        group_by(year, month) %>%
+        summarise_each(funs(mean(., na.rm = TRUE)))
+df3[is.na(df3)] <- NA #replaces NaN's
+plot(df5[[3]])
+##plots to compare the series (remember one has been averaged!)
+plot(dhi_02 ~ date, data = df3)
+par(new=T)
+plot(dhi_02 ~ date, data = df, col = 'red')
+lines(dhi_02 ~ date, data = df3)
+lines(dhi_02 ~ date, data = df, col = 'red')
+
+
+df4 <- zoo(df3)
+df5 <- ts(df3)
+test1 <- df4[,c("date", "dhi_01")]
+test1[,2] <- na.fill(test1[,2], "extend")
+
+autoplot(df4)
