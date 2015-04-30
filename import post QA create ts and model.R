@@ -34,7 +34,7 @@ df3 <- df2 %>%
 df3[is.na(df3)] <- NA #replaces NaN's
 
 #work with one site at time
-d1 <- df3$dhi_01
+d1 <- df3$dhi_05
 
 #Interpolate missing values (linear interpolation)
 int.d1 <- na.approx(d1)
@@ -51,10 +51,10 @@ seasmod.d1 <- mean(int.d1)+seas.d1
 
 
 #Plot results - overlays interploated time series with seasonal model
-plot(ts.d1, ylim=c(35,60))
+plot(ts.d1, ylim=c(0,80))
 par(new=T)
-plot(seasmod.d1, col = 'red', ylim=c(35,60))
-plot(tsa)
+plot(seasmod.d1, col = 'red', ylim=c(0,80))
+
 
 #Plots the classic view, actual, seasonal, trend, noise
 plot(fit.d1)
