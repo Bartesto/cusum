@@ -59,4 +59,52 @@ plot(seasmod.d1, col = 'red', ylim=c(0,80))
 #Plots the classic view, actual, seasonal, trend, noise
 plot(fit.d1)
 
+#Set up model and index for base period
+base_end = "01/01/2008"
+ts.base <- window(ts.d1, start=c(1987, 2), end=c(2008, 1))
+fit.base <- stl(ts.base, s.window="period")
+seas.base <- fit.base$time.series[,"seasonal"]
+seasmod.base <- mean(int.d1)+seas.d1
+
+
+
+action<-my(base_end) #base action date
+base.index<- df3[,3]<action
+
+#old code
+i= 3 #4th is site 01
+
+ts.i<-ts.d1
+mo.i<-seasmod.d1
+diff.i<-ts.i-mo.i
+#diff.i[is.na(diff.i)]<-0 #converts NA's to 0
+cu.i<-cumsum(diff.i)
+cu.base<-cu.i[base.index] #cusum for base only for sd calcs
+sName.i<-sname[i]
+FileName<-paste(sName.i, "cusum",".jpg",sep=" ")
+jpeg(file=FileName, width=10*dpi, height=7*dpi, res=dpi)
+par(mfrow=c(2,1)) #sets up 2 rows of graphs in 1 column
+par(mar=c(2, 4, 1.5, .5)) #manipulating margins to control blank space
+plot(mo.i ~ date, data, col="red", ylab= NA, xlab=NA, 
+     yaxt="n", xaxt="n",ylim=c(0,80))
+lines(mo.i ~ date, data, col="red")
+abline(v=as.Date("2008-01-01"), lty=4, lwd=2) #management action date
+legend("topleft", legend=c("Landsat Time Series", "1987-2008 Baseline",
+                           "2008"), col=c("black","red", "black"), lty=c(1, 1, 4), lwd=2, cex=0.8)
+par(new=T) #allows call to plot over an existing plot
+plot(ts.i ~ date, data, ylab= "Vegetation Cover %",
+     ylim=c(0,80), main=sname[i], xlab=NA, xaxt="n")
+lines(ts.i ~ date, data)
+plot(cu.i ~ data$date, ylab= "Cumulative Sum", xlab= "Year",
+     ylim=c(-1000,1000))
+lines(cu.i ~ data$date)
+abline(h=stdv*sd(cu.base, na.rm=TRUE), lty=2, lwd=2, col="blue")
+abline(h=-stdv*sd(cu.base, na.rm=TRUE), lty=2, lwd=2, col="blue")
+abline(0,0)
+abline(v=action, lty=4, lwd=2) #management action date
+abline(v= as.Date(new_start, '%d/%m/%Y'), lty=4, lwd=2, col = "red") #new from
+legend("topleft", legend=c("Cumulative sum of difference to baseline model", "5 standard deviations",
+                           "2008", "New data"), col=c("black", "blue", "black", "red"),
+       lty=c(1,2,4,4), lwd=2, cex=0.8)
+               
 
