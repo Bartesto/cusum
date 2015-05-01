@@ -141,3 +141,38 @@ test1 <- df4[,c("date", "dhi_01")]
 test1[,2] <- na.fill(test1[,2], "extend")
 
 autoplot(df4)
+
+
+##
+df4
+a <- df3$dhi_01
+inta <- na.approx(a)
+tsa <- ts(inta, start=c(1987, 2), end=c(2015, 10), frequency=12)
+plot(tsa, col="red")
+par(new=T)
+plot(df3$dhi_01 ~ df3$date)
+lines(df3$dhi_01 ~ df3$date)
+
+fit <- stl(tsa, s.window="period")
+plot(fit)
+
+
+b <- coredata(df4)[,6]
+intb <- na.approx(b)
+tsb <- ts(intb, start=c(1987, 2), end=c(2015, 10), frequency=12)
+plot(tsb)
+
+
+seas <- fit$time.series[,"seasonal"]
+seas2 <- mean(inta)+seas
+
+plot(tsa, ylim=c(35,60))
+par(new=T)
+plot(seas2, col = 'red', ylim=c(35,60))
+plot(tsa)
+plot(fit)
+
+
+
+
+
