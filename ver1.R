@@ -28,19 +28,45 @@ df3 <- df2 %>%
 df3[is.na(df3)] <- NA #replaces NaN's
 
 #### STAGE TWO ####
-
-base_end=dmy("01/01/2008")
+#create base period time series to model from
+base_end=dmy("01/01/2008")#######VARIABLE INPUT
 base.df <- df3 %>%
         filter(date < base_end)
 
 #### STAGE 3 ####
 
-#per site
-df3.i <- na.approx(df3[,4])#interpolated site 1
-base.df.i <- na.approx(base.df[,4])
-ts.d1 <- ts(base.df.i, start=c(min(df3[,1]), as.numeric(head(df3[,2], n=1))), 
+#df3 is complete data frame with all sites
+#This stage takes the complete data frame and breaks the remaining calcs by site
+
+i=2
+#Time Series per site for all period
+site.i <- na.approx(df3[,3+i])#interpolated for site all
+ts.i <- ts(site.i, start=c(min(df3[,1]), as.numeric(head(df3[,2], n=1))), 
+                end=c(max(df3[,1]), as.numeric(tail(df3[,2], n=1))), frequency=12)
+
+#Time series per site for base period
+site.base.i <- na.approx(base.df[,3+i])#interpolated for site base
+ts.base.i <- ts(site.base.i, start=c(min(base.df[,1]), 
+                                     as.numeric(head(base.df[,2], n=1))), 
+                end=c(year(base_end), month(base_end)), frequency=12)
+
+
+#Find seasonal component of base period as "model'
+fit.i <- stl(ts.base.i, s.window="period")
+seas.i <- fit.i$time.series[,"seasonal"]
+seasmod.i <- mean(ts.base.i) + as.numeric(fit.i$time.series[,"seasonal"])
+seasmod.i <- seasmod.i[1:12] #reduce to 12 monthly repeating values
+
+#create temp df and extrapolate model for length of all time series
+#putting in temp df allowed me to recycle model to complete length
+tmp.df.i <- cbind(site.i, seasmod.i)
+ext.mod.i <- ts(tmp.df.i[,2], start=c(min(df3[,1]), as.numeric(head(df3[,2], n=1))), 
                 end=c(max(df3[,1]), as.numeric(tail(df3[,2], n=1))), frequency=12)
 
 
 
+
+plot(ts.i, ylim=c(0,80))
+par(new=T)
+plot(ext.mod.i, col = 'red', ylim=c(0,80))
 
