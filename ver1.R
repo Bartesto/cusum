@@ -49,6 +49,7 @@ site.base.i <- na.approx(base.df[,3+i])#interpolated for site base
 ts.base.i <- ts(site.base.i, start=c(min(base.df[,1]), 
                                      as.numeric(head(base.df[,2], n=1))), 
                 end=c(year(base_end), month(base_end)), frequency=12)
+base.index<- df3[,3]<base_end
 
 
 #Find seasonal component of base period as "model'
@@ -69,4 +70,35 @@ ext.mod.i <- ts(tmp.df.i[,2], start=c(min(df3[,1]), as.numeric(head(df3[,2], n=1
 plot(ts.i, ylim=c(0,80))
 par(new=T)
 plot(ext.mod.i, col = 'red', ylim=c(0,80))
+
+##Put in old code framework for dual cusum plot
+
+#ts from df3
+site.i <- na.approx(df3[,3+i])#interpolated for site all ## SITE SELECTION HERE
+ts.i <- ts(site.i, start=c(min(df3[,1]), as.numeric(head(df3[,2], n=1))), 
+           end=c(max(df3[,1]), as.numeric(tail(df3[,2], n=1))), frequency=12)
+#model
+site.base.i <- na.approx(base.df[,3+i])#interpolated for site base ## SITE SELECTION HERE
+ts.base.i <- ts(site.base.i, start=c(min(base.df[,1]), 
+                                     as.numeric(head(base.df[,2], n=1))), 
+                end=c(year(base_end), month(base_end)), frequency=12)
+fit.i <- stl(ts.base.i, s.window="period")
+seas.i <- fit.i$time.series[,"seasonal"]
+seasmod.i <- mean(ts.base.i) + as.numeric(fit.i$time.series[,"seasonal"])
+seasmod.i <- seasmod.i[1:12] #reduce to 12 monthly repeating values
+tmp.df.i <- cbind(site.i, seasmod.i)
+ext.mod.i <- ts(tmp.df.i[,2], start=c(min(df3[,1]), as.numeric(head(df3[,2], n=1))), 
+                end=c(max(df3[,1]), as.numeric(tail(df3[,2], n=1))), frequency=12)
+diff.i<-ts.i-ext.mod.i
+cu.i<-cumsum(diff.i)
+cu.base<-cu.i[base.index]
+
+# sName.i<-sname[i]
+# FileName<-paste(sName.i, "cusum",".jpg",sep=" ")
+# jpeg(file=FileName, width=10*dpi, height=7*dpi, res=dpi)
+
+
+
+
+
 
