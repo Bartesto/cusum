@@ -70,3 +70,14 @@ plot(ts.i, ylim=c(0,80))
 par(new=T)
 plot(ext.mod.i, col = 'red', ylim=c(0,80))
 
+##Google causalimpacts
+install.packages("devtools")
+library(devtools)
+devtools::install_github("google/CausalImpact")
+library(CausalImpact)
+matplot(ts.i, type = "l")
+
+pre.period <- as.Date(c("1987-02-18", "2008-01-01"))
+post.period <- as.Date(c("2008-01-02", "2015-10-01"))
+impact <- CausalImpact()
+
