@@ -45,7 +45,7 @@ base.df2 <- df2 %>%
 base.df3 <- df3 %>%
         filter(date < base_end)
 
-#model for daily at site 17
+#model for daily at site 17 NOT WORKING
 mod.d <- na.approx(base.df2[,18])
 mod.d.ts <- ts(mod.d, start=c(min(base.df2[,1]), as.numeric(head(df3[,2], n=1))), 
    end=c(max(df3[,1]), as.numeric(tail(df3[,2], n=1))), frequency=12)
@@ -58,16 +58,26 @@ site <- na.approx(dy.df[,2])
 date <- as.Date(as.character(dy.df[,1]))
 data <- zoo(site, date)
 
+#model for mthly
+mod.m <- na.approx(base.df3[,20])
+mod.m.ts <- ts(mod.m, start=c(min(base.df3[,1]), as.numeric(head(base.df3[,2], n=1))), 
+               end=c(year(base_end), month(base_end)), frequency=12)
+fit.m <- stl(mod.m.ts, s.window="period")
+seas.m <- fit.m$time.series[,"seasonal"]
+seasmod.m <- mean(mod.m.ts) + as.numeric(fit.m$time.series[,"seasonal"])
+seasmod.m <- seasmod.m[1:12]
+
+
 
 
 #set up mthly data for site 17
 mths <- seq.Date(as.Date(start_date), as.Date("2015-10-10"), by = "month")
-msite <- na.approx(df3[,4])
+#msite <- na.approx(df3[,4])
 msite17 <- na.approx(df3[,20])
-datam1 <- zoo(msite, mths)
-datam17 <- zoo(msite17, mths)
+#datam1 <- zoo(msite, mths)
+datam17 <- zoo(cbind(msite17, seasmod.m), mths)
 
-
+matplot(datam17)
 
 
 
@@ -96,7 +106,7 @@ summary(impact17d, "report")
 
 
 impact17 <- CausalImpact(datam17, pre.period, post.period, model.args = list(nseasons = 28, season.duration = 12))
-d17 <- plot(impact17, c("original", "cumulative")) +ggtitle("site17 monthly")
+d17 <- plot(impact17) +ggtitle("site17 monthly")
 plot(d17)
 summary(impact17)
 summary(impact17, "report")
