@@ -110,3 +110,5 @@ d17 <- plot(impact17) +ggtitle("site17 monthly")
 plot(d17)
 summary(impact17)
 summary(impact17, "report")
+#plot seasonal model and mthly series
+matplot(datam17, type = "l")
