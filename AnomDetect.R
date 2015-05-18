@@ -30,6 +30,7 @@ sc1 = breakout(site17_ADnt, min.size=24, method='multi', beta=.001, degree=1, pl
 sc1$plot
 
 names(site17_AD) <- c("timestamp", "count")
+as.data.frame(site17_AD)
 sc2 = breakout(site17_AD, min.size=24, method='multi', beta=.001, degree=1, plot=TRUE)
 sc2$plot
 
