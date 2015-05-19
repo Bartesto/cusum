@@ -27,8 +27,43 @@ i=1
 library(lubridate)
 library(ggplot2)
 library(tidyr)
+library(grid)
 
-
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+        library(grid)
+        
+        # Make a list from the ... arguments and plotlist
+        plots <- c(list(...), plotlist)
+        
+        numPlots = length(plots)
+        
+        # If layout is NULL, then use 'cols' to determine layout
+        if (is.null(layout)) {
+                # Make the panel
+                # ncol: Number of columns of plots
+                # nrow: Number of rows needed, calculated from # of cols
+                layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                                 ncol = cols, nrow = ceiling(numPlots/cols))
+        }
+        
+        if (numPlots==1) {
+                print(plots[[1]])
+                
+        } else {
+                # Set up the page
+                grid.newpage()
+                pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+                
+                # Make each plot, in the correct location
+                for (i in 1:numPlots) {
+                        # Get the i,j matrix positions of the regions that contain this subplot
+                        matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+                        
+                        print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                                        layout.pos.col = matchidx$col))
+                }
+        }
+}
 
 #read data
 setwd(dir)
@@ -62,7 +97,7 @@ hordf <- data.frame(pos=stdev*sd(cu.base), neg=-stdev*sd(cu.base),
 cu.base<-cu.i[1:length(b.i)]
 
 
-ggplot()+
+p1 <- ggplot()+
         geom_point(data=df3, aes(x=date, y=Value, colour=Series))+
         geom_line(data=df3, aes(x=date, y=Value, colour=Series))+
         scale_colour_manual(values=c("black", "red"),
@@ -70,10 +105,7 @@ ggplot()+
                           breaks=as.character(df3$Series),
                           labels=as.character(df3$Series))+
         coord_cartesian(ylim = c(0, 80))+
-#         geom_line(data=df3, aes(x=date, y=series, colour="red"))+
-        #geom_vline(xintercept=as.numeric(as.Date(base_end)), linetype="dashed")+
         geom_line(aes(x,y, linetype=Mngt), colour='blue', size = 1, vertdf)+
-        #annotate("text", 2008, max(df3$value), "Mngt Action")+
         theme_bw()+
         xlab("")+
         ylab("Vegetation Cover %")
@@ -82,7 +114,7 @@ ggplot()+
         
         
         
-ggplot()+
+p2<- ggplot()+
         geom_point(data=df2, aes(x=date, y=cumsum, colour=label))+
         geom_line(data=df2, aes(x=date, y=cumsum, colour=label))+
         scale_colour_manual(values="black",
@@ -97,5 +129,5 @@ ggplot()+
         theme_bw()+
         xlab("")+
         ylab("Cumulative Sum")
-
+multiplot(p1,p2, cols=1)
              
