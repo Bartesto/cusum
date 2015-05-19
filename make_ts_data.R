@@ -37,7 +37,7 @@ mtsd <- function(dir, csv, project) {
         df3[is.na(df3)] <- NA #replaces NaN's
         df3[,3] <- seq(df[1,1], tail(df[,1], n=1)+ months(1), by = 'months')#clean date vals to reg day of each mth
         df3 <- df3[,c(-1,-2)]#drop year and mth columns
-        df4 <- data.frame( df3[,1], na.approx(df3[,2:65], rule=2))
-        write.csv(df4, file = paste0(project, "_site_TS_data.csv"))
+        df4 <- data.frame( df3[,1], na.approx(df3[,-1], rule=2))
+        write.csv(df4, file = paste0(project, "_mtsd.csv"))
         
 }
