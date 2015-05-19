@@ -55,9 +55,9 @@ df2$model <- rep(seasmod.b.i, length.out = length(df[,1]))
 p.i <- ggplot()+
         geom_line(data=df2, aes(x=date, y=df2[,2], colour="blue"))+
         geom_line(data=df2, aes(x=date, y=df2[,3], colour="red"))+
-        geom_vline(aes(x=as.date(base_end)))+
-#         xlab("date")+
-#         ylab("cover")
+        geom_vline(xintercept=as.numeric(as.Date(base_end)))+
+        xlab("date")+
+        ylab("cover")
 p.i             
              
              
