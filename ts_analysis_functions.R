@@ -28,6 +28,7 @@ library(lubridate)
 library(ggplot2)
 library(tidyr)
 library(grid)
+library(gridExtra)
 
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
         library(grid)
@@ -96,7 +97,7 @@ hordf <- data.frame(pos=stdev*sd(cu.base), neg=-stdev*sd(cu.base),
                     x=c(min(df2[,1]), max(df2[,1])), Limit=factor("Limit"))
 cu.base<-cu.i[1:length(b.i)]
 
-
+#Model and ts plot
 p1 <- ggplot()+
         geom_point(data=df3, aes(x=date, y=Value, colour=Series))+
         geom_line(data=df3, aes(x=date, y=Value, colour=Series))+
@@ -107,27 +108,30 @@ p1 <- ggplot()+
         coord_cartesian(ylim = c(0, 80))+
         geom_line(aes(x,y, linetype=Mngt), colour='blue', size = 1, vertdf)+
         theme_bw()+
+        theme(axis.text.y = element_text(angle=90))+
         xlab("")+
         ylab("Vegetation Cover %")
 
-
-        
-        
-        
+#cusum plot
 p2<- ggplot()+
         geom_point(data=df2, aes(x=date, y=cumsum, colour=label))+
         geom_line(data=df2, aes(x=date, y=cumsum, colour=label))+
         scale_colour_manual(values="black",
-                            name="Cumsum diff \n to model",
+                            name="Cumsum \n diff \n to model",
                             labels="")+
-        coord_cartesian(ylim = c(-1200, 1200))+
+        coord_cartesian(ylim = c(-1200, 1200))+       
         geom_line(aes(x,y, linetype=Mngt), colour='blue', size = 1, vertdf)+
         geom_line(aes(x, pos), linetype="dashed", colour='red', size=1, hordf)+
         geom_line(aes(x, neg), linetype="dashed", colour='red', size=1, hordf)+
         geom_hline(yintercept=0)+
-        annotate("text", min(df2[,1])+1000, hordf[1,1]+70, label = "Control Limits")+
+        annotate("text", min(df2[,1])+1000, hordf[1,1]+95, label = "Control Limits",
+                 size=4)+
         theme_bw()+
+        theme(axis.text.y = element_text(angle=90))+
         xlab("")+
         ylab("Cumulative Sum")
-multiplot(p1,p2, cols=1)
+m <- arrangeGrob(p1,p2)
+
+m <- multiplot(p1,p2, cols=1)
+ggsave(file="test.pdf", m)
              
