@@ -26,6 +26,7 @@ i=1
 #libraries
 library(lubridate)
 library(ggplot2)
+library(dplyr)
 library(tidyr)
 library(grid)
 library(gridExtra)
@@ -59,9 +60,11 @@ df2$label <- factor(rep("cumsum", by=length(df2[,1])))
 df3 <- gather(df2, "Series", "Value", 2:3)
 vertdf <-data.frame(x=as.Date(base_end), y=c(-Inf, Inf),
                     Mngt=factor(year(as.Date(base_end))))
+cu.i<-cumsum(df2[,2]-df2[,3])
+cu.base<-cu.i[1:length(b.i)]#shorten for sd calcs
 hordf <- data.frame(pos=stdev*sd(cu.base), neg=-stdev*sd(cu.base),
                     x=c(min(df2[,1]), max(df2[,1])), Limit=factor("Limit"))
-cu.base<-cu.i[1:length(b.i)]
+
 
 #Model and ts plot
 p1 <- ggplot()+
@@ -96,8 +99,7 @@ p2<- ggplot()+
         theme(axis.text.y = element_text(angle=90))+
         xlab("")+
         ylab("Cumulative Sum")
-m <- arrangeGrob(p1,p2)
 
-m <- multiplot(p1,p2, cols=1)
+m <- arrangeGrob(p1,p2)
 ggsave(file="test.pdf", m)
              
