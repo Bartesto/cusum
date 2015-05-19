@@ -93,6 +93,7 @@ ggplot()+
         geom_line(aes(x, pos), linetype="dashed", colour='red', size=1, hordf)+
         geom_line(aes(x, neg), linetype="dashed", colour='red', size=1, hordf)+
         geom_hline(yintercept=0)+
+        annotate("text", min(df2[,1])+1000, hordf[1,1]+70, label = "Control Limits")+
         theme_bw()+
         xlab("")+
         ylab("Cumulative Sum")
