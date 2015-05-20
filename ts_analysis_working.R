@@ -1,5 +1,7 @@
 rm(list=ls())
 
+
+##Stage 1 OCA Function
 #inputs for function
 dir="Z:\\DOCUMENTATION\\BART\\R\\R_DEV\\cusum"
 csv="dhi_mtsd.csv"
@@ -8,7 +10,6 @@ stdev=3
 out=".pdf" #".jpeg"
 i=1
 
-
 #libraries
 library(lubridate)
 library(ggplot2)
@@ -16,7 +17,6 @@ library(dplyr)
 library(tidyr)
 library(grid)
 library(gridExtra)
-
 
 ##Generic tasks
 #read data
@@ -42,7 +42,6 @@ fit.b.i <- stl(b.ts.i, s.window="period")
 seasmod.b.i <- mean(b.ts.i) + as.numeric(fit.b.i$time.series[,"seasonal"])
 seasmod.b.i <- seasmod.b.i[1:12]
 
-
 #make df of site and its model
 df2 <- df[, c(1, 1+i)]
 df2$model <- rep(seasmod.b.i, length.out = length(df[,1]))
@@ -55,7 +54,6 @@ cu.i<-cumsum(df2[,2]-df2[,3])
 cu.base<-cu.i[1:length(b.i)]#shorten for sd calcs
 hordf <- data.frame(pos=stdev*sd(cu.base), neg=-stdev*sd(cu.base),
                     x=c(min(df2[,1]), max(df2[,1])), Limit=factor("Limit"))
-
 
 #Model and ts plot
 p1 <- ggplot()+
@@ -93,3 +91,55 @@ p2<- ggplot()+
 
 m <- arrangeGrob(p1,p2)
 ggsave(file="test.pdf", m)
+
+##Stage 2
+rm(list=ls())
+
+dir="Z:\\DOCUMENTATION\\BART\\R\\R_DEV\\cusum"
+csv="dhi_mtsd.csv"
+base_end <- "2008-01-01"
+i=1
+
+library(BreakoutDetection)
+library(changepoint)
+
+setwd(dir)
+df <- read.csv(csv, header = TRUE)
+df <- df[,-1]
+df[,1] <- as.Date(df[,1])
+
+#1st df for breakout
+date.i <- df[,1]
+df2.i <- df[, c(1, 1+i)]
+names(df2.i) <- c("timestamp", "count")
+df2.i[,1] <- as.POSIXct(df2.i[,1])
+bo.i <- breakout(df2.i, min.size=24, method='multi', beta=.001, degree=1, plot=TRUE)
+locn.i <- unlist(bo.i[1])#obtain locn of breaks (numbers)
+intcpts.i <- vector(mode="numeric", length=length(locn.i))#empty vector for loop
+for (i in 1:length(locn.i)){
+        intcpts.i[i] <- as.numeric(date.i[locn.i[i]])
+}
+
+
+
+#2nd df for plot
+df3.i <- df[, c(1, 1+i)]
+df3.i[,3] <- rep(names(df[2]), length(df3.i[,1]))
+
+ggplot()+
+        geom_point(aes(x=df3.i[,1], y=df3.i[,2], colour=df3.i[,3]))+
+        geom_line(aes(x=df3.i[,1], y=df3.i[,2], colour=df3.i[,3]))+
+        scale_colour_manual(values="black",
+                            name=names(df[2]),
+                            labels="")+
+        geom_vline(aes(xintercept=intcpts.i), linetype="longdash", colour="red")+
+        theme_bw()+
+        annotate("text", min(df3.i[,1]), max(df3.i[,2])*0.98, label = "Breakout",
+                 size=5, colour="red")+
+        xlab("")+
+        ylab("Vegetation Cover %")
+
+
+
+
+
