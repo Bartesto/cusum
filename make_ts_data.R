@@ -22,7 +22,7 @@ mtsd <- function(dir, csv, project) {
         library(dplyr)
         library(zoo)
         setwd(dir)
-        df <- read.csv("test_data_2015_orig.csv", header = TRUE)
+        df <- read.csv(csv, header = TRUE)
         df$date <- dmy(df$date)#create date here to order by
         df <- df[order(df$date),]#Very Important - order it!
         all <- seq(df[1,1], tail(df[,1], n=1), by = 'days') #daily date sequence for whole period
@@ -35,7 +35,10 @@ mtsd <- function(dir, csv, project) {
                 group_by(year, month) %>%
                 summarise_each(funs(mean(., na.rm = TRUE)))
         df3[is.na(df3)] <- NA #replaces NaN's
-        df3[,3] <- seq(df[1,1], tail(df[,1], n=1)+ months(1), by = 'months')#clean date vals to reg day of each mth
+        emd <- ymd(paste0(as.character(tail(df3[,1], n=1)), 
+                          "-", as.character(tail(df3[,2], n=1)), 
+                          "-", as.character(day(df[1,1]))))#endmonthday 
+        df3[,3] <- seq(df[1,1], emd, by = 'months')#clean date vals to reg day of each mth
         df3 <- df3[,c(-1,-2)]#drop year and mth columns
         df4 <- data.frame( df3[,1], na.approx(df3[,-1], rule=2))
         write.csv(df4, file = paste0(project, "_mtsd.csv"))
