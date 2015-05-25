@@ -1,17 +1,21 @@
-
-
-
+# This function uses the "changepoint" package to create a ggplot object of a 
+# time series of cover values showing where breaks in means occur.
+# 
+# The function uses the data frame "...mtsd.csv" as the starting point.
+# This data frame must be created first.
+# 
+# By Bart Huntley 25/05/2015
 
 rm(list=ls())
 
 dir="Z:\\DEC\\Vegmachine_SharkBay\\Working\\Bernier_Dorre\\Working\\analysis"
 csv="Bernier_Dorre_mtsd.csv"
-out=".jpeg"
+out=".pdf"
 survey="1998-09-01"
 
 
 
-BDI_r_chgpt <- function(dir, csv, survey, out){
+chgpt_means <- function(dir, csv, survey, out){
         
         library(lubridate)
         library(ggplot2)
@@ -28,10 +32,10 @@ BDI_r_chgpt <- function(dir, csv, survey, out){
         df[,1] <- as.Date(df[,1])
         
         sname <- names(df)[-1]
-        folder <- paste0("ts-chgpt-graphs-TEST", Sys.Date())
+        folder <- paste0("ts-chgpt-graphs-", Sys.Date())
         dir.create(folder)
         setwd(paste(dir,folder, sep="\\"))
- i=1  
+
         for (i in 1:length(sname)){
                 
                 df2.i <- df[, c(1, 1+i)]
@@ -65,8 +69,8 @@ BDI_r_chgpt <- function(dir, csv, survey, out){
                                      Survey=factor(year(as.Date(survey))))
                 
                 p2 <- ggplot()+
-                        geom_point(data=df2.i, aes(x=date, y=df2.i[,2], colour=label))+
-                        geom_line(data=df2.i, aes(x=date, y=df2.i[,2], colour=label))+
+                        geom_point(data=df2.i, aes_string(x="date", y=sname[i], colour="label"))+
+                        geom_line(data=df2.i, aes_string(x="date", y=sname[i], colour="label"))+
                         scale_colour_manual(values=c("black"),
                                             name=sname[i],
                                             breaks=as.character(df2.i$label),
@@ -87,42 +91,10 @@ BDI_r_chgpt <- function(dir, csv, survey, out){
                 
                 
                 sname.i<-sname[i]
-                filename<-paste0(sname.i, "-rain-chgpt-plot",out)
+                filename<-paste0(sname.i, "-chgpt-plot",out)
 
                 ggsave(file=filename, p2, width = 22.5, height = 13.5, units = "cm")
         }
 }
 
-dir="Z:\\DEC\\Vegmachine_SharkBay\\Working\\Bernier_Dorre\\Working\\analysis"
-csv="Bernier_Dorre_mtsd.csv"
-out=".pdf"
-survey="1998-09-01"
-
-BDI_r_chgpt(dir, csv, survey, out)
-
-
-setwd(paste(dir,folder, sep="\\"))
-plotBDIFunc <- function(x) {
-        nm <- names(x)
-        for (i in seq_along(nm)-1) {
-                plots <- ggplot(x, aes_string(x=nm[1], y=nm[i+1]))+
-                        geom_point()+
-                        geom_line()+
-                        theme_bw()
-                        
-                ggsave(plots,filename=paste("myplot",nm[i+1],".png",sep=""))
-        }
-}
-
-plotBDIFunc(df) ## execute function
-
-x=df
-nm = names(x)
-ggplot(x, aes_string(x=nm[1], y=nm[1+1]))+
-        geom_point()+
-        geom_line()+
-        coord_cartesian(ylim = c(-10, 80))+
-        theme_bw()+
-        xlab("")+
-        ylab("Vegetation Cover %")
-
+chgpt_means(dir, csv, survey, out)
