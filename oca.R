@@ -13,7 +13,7 @@ dir="Z:\\DEC\\Dirk_Hartog_Island_Ecological_Restoration\\Working\\Analysis"
 csv="dhi_mtsd.csv"
 base_end="2008-01-01"
 stdev=3
-out=".jpeg"
+out=".pdf"
         
 
 
@@ -32,7 +32,7 @@ oca <- function(dir, csv, base_end, stdev=3, out){
                 }  
         }  
         load_or_install(c("lubridate","ggplot2", "dplyr","tidyr", "grid", "gridExtra"))
-
+        
         
         #generic tasks
         setwd(dir)
@@ -80,7 +80,7 @@ oca <- function(dir, csv, base_end, stdev=3, out){
                                             breaks=as.character(df3$Series),
                                             labels=as.character(df3$Series))+
                         coord_cartesian(ylim = c(0, 80))+
-                        geom_line(aes(x,y, linetype=Mngt), colour='blue', size = 1, vertdf)+
+                        geom_line(aes(x,y, linetype=Mngt), colour='blue', size = 0.5, vertdf)+
                         theme_bw()+
                         theme(axis.text.y = element_text(angle=90))+
                         xlab("")+
@@ -89,17 +89,17 @@ oca <- function(dir, csv, base_end, stdev=3, out){
                 #cusum plot
                 p2<- ggplot()+
                         geom_point(data=df2, aes(x=date, y=cumsum, colour=label))+
-                        geom_line(data=df2, aes(x=date, y=cumsum, colour=label))+
+                        geom_line(data=df2, aes(x=date, y=cumsum, colour=label), size=0.5)+
                         scale_colour_manual(values="black",
                                             name="Cumsum \n diff \n to model",
                                             labels="")+
                         coord_cartesian(ylim = c(-1200, 1200))+       
-                        geom_line(aes(x,y, linetype=Mngt), colour='blue', size = 1, vertdf)+
-                        geom_line(aes(x, pos), linetype="dashed", colour='red', size=1, hordf)+
-                        geom_line(aes(x, neg), linetype="dashed", colour='red', size=1, hordf)+
+                        geom_line(aes(x,y, linetype=Mngt), colour='blue', size = 0.5, vertdf)+
+                        geom_line(aes(x, pos), linetype="dashed", colour='red', size=0.5, hordf)+
+                        geom_line(aes(x, neg), linetype="dashed", colour='red', size=0.5, hordf)+
                         geom_hline(yintercept=0)+
                         annotate("text", min(df2[,1])+1000, hordf[1,1]+95, label = "Control Limits",
-                                 size=4)+
+                                 size=2.5)+
                         theme_bw()+
                         theme(axis.text.y = element_text(angle=90))+
                         xlab("")+
@@ -108,7 +108,7 @@ oca <- function(dir, csv, base_end, stdev=3, out){
                 m <- arrangeGrob(p1,p2)
                 sname.i<-sname[i]
                 filename<-paste0(sname.i, "_orig_cusum", out)
-                ggsave(file=filename, m, width = 22.5, height = 13.5, units = "cm")
+                ggsave(file=filename, m, width = 24, height = 13.5, units = "cm")
         }
 }
 
