@@ -152,7 +152,7 @@ cusum_one <- function(dir, csv, base_end, stdev=3, out, project){
                 
                 o <- arrangeGrob(p1,p2)
                 sname.i<-sname[i]
-                filename<-paste0(sname.i, "_cusum_", project, "_", stdev, out)
+                filename<-paste0(sname.i, "_cusum_one_", project, "_", stdev, out)
                 ggsave(file=filename, o, width = 24, height = 13.5, units = "cm")
 
         }
